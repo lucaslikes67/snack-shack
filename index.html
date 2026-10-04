@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Snack Shack · Today’s Menu</title>
+  <style>
+    :root { --ink:#20302b; --muted:#718078; --cream:#f7f4ed; --paper:#fffdf8; --sage:#c9d8c5; --green:#2f5549; --orange:#e8794e; --line:#e8e6dc; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:var(--cream); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .page { max-width:1180px; margin:0 auto; padding:34px 28px 64px; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:74px; }
+    .brand { display:flex; gap:11px; align-items:center; font-size:15px; font-weight:750; letter-spacing:.02em; }
+    .brand-mark { display:grid; place-items:center; width:34px; height:34px; border-radius:50%; background:var(--green); color:#f7f4ed; font-size:18px; }
+    .date { color:var(--muted); font-size:13px; font-weight:650; letter-spacing:.06em; text-transform:uppercase; }
+    .order-button { border:0; border-radius:999px; padding:11px 17px; color:#fff; background:var(--green); font:inherit; font-size:13px; font-weight:800; cursor:pointer; }
+    .card { cursor:pointer; }
+    .card:hover { transform:translateY(-3px); transition:transform .18s ease; }
+    .modal-backdrop { position:fixed; inset:0; z-index:10; display:none; place-items:center; padding:20px; background:rgba(22,34,29,.48); }
+    .modal-backdrop.open { display:grid; }
+    .modal { width:min(430px,100%); border-radius:20px; padding:26px; background:var(--paper); box-shadow:0 25px 70px rgba(0,0,0,.2); }
+    .modal h2 { margin:0 0 10px; font:400 30px Georgia,serif; }
+    .modal p { color:var(--muted); line-height:1.6; margin:0 0 20px; }
+    .modal-actions { display:flex; gap:10px; justify-content:flex-end; }
+    .modal-actions button { border:0; border-radius:999px; padding:11px 16px; font:inherit; font-weight:750; cursor:pointer; }
+    .close-button { color:var(--ink); background:var(--line); }
+    .primary-button { color:#fff; background:var(--green); }
+    .order-list { margin:0 0 20px; padding:0; list-style:none; }
+    .order-list li { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line); }
+    .order-total { display:flex; justify-content:space-between; margin-bottom:20px; font-weight:800; }
+    .intro { max-width:680px; margin-bottom:42px; }
+    .eyebrow { color:var(--orange); font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; margin-bottom:13px; }
+    h1 { margin:0; font-family: Georgia, serif; font-size:clamp(48px, 7vw, 78px); font-weight:400; letter-spacing:-.055em; line-height:.98; }
+    .sub { color:var(--muted); font-size:16px; line-height:1.6; margin:20px 0 0; }
+    .menu-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:18px; }
+    .card { overflow:hidden; background:var(--paper); border:1px solid var(--line); border-radius:18px; box-shadow:0 8px 28px rgba(52,62,52,.055); }
+    .card-image { display:block; width:100%; aspect-ratio:1.15; object-fit:cover; background:#dde2d5; }
+    .product-art { display:grid; place-items:center; width:100%; aspect-ratio:1.15; font-size:64px; background:linear-gradient(135deg,#f7e9b8,#f4c978); }
+    .product-art span { filter:drop-shadow(0 5px 4px rgba(65,44,20,.18)); }
+    .product-art img { width:100%; height:100%; object-fit:cover; display:block; }
+    .card-body { padding:17px 18px 19px; }
+    .card h2 { font-family:Georgia, serif; font-size:20px; font-weight:400; letter-spacing:-.02em; margin:0 0 8px; }
+    .card-meta { display:flex; align-items:center; justify-content:space-between; color:var(--muted); font-size:13px; }
+    .price { color:var(--green); font-size:15px; font-weight:800; }
+    .pickup { display:flex; gap:18px; align-items:center; margin-top:46px; padding:22px 26px; border-radius:16px; background:var(--sage); }
+    .pickup-icon { display:grid; place-items:center; flex:0 0 42px; width:42px; height:42px; border-radius:50%; background:var(--green); color:white; font-size:20px; }
+    .pickup-label { color:var(--green); font-size:11px; font-weight:850; letter-spacing:.14em; text-transform:uppercase; margin-bottom:4px; }
+    .pickup-text { color:var(--green); font-size:18px; font-weight:700; letter-spacing:-.01em; }
+    @media (max-width: 860px) { .menu-grid { grid-template-columns:repeat(2,1fr); } .topbar { margin-bottom:56px; } }
+    @media (max-width: 520px) { .page { padding:24px 18px 42px; } .topbar { margin-bottom:48px; } .date { font-size:11px; } .menu-grid { gap:12px; } .card-body { padding:14px; } .card h2 { font-size:17px; } .card-meta { font-size:11px; } .price { font-size:13px; } .pickup { margin-top:30px; padding:17px; gap:13px; } .pickup-text { font-size:15px; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">✦</span><span>The Snack Shack</span></div>
+      <div style="display:flex;align-items:center;gap:14px"><div class="date">Student lunch club</div><button class="order-button" id="orderButton">My order (0)</button></div>
+    </header>
+    <section class="intro" aria-labelledby="page-title">
+      <div class="eyebrow">Student snack club</div>
+      <h1 id="page-title">Today’s menu</h1>
+      <p class="sub">Pick your favorites, add them to your order, and grab them at lunch.</p>
+    </section>
+    <section class="menu-grid" aria-label="Today's menu items">
+      <article class="card"><div class="product-art"><img src="https://i5.walmartimages.com/asr/8710cde4-88bd-4849-bbbb-368b4aad6ba5.0c7193c0e0aaa62a2238b8a348b4dc03.jpeg?odnBg=FFFFFF&amp;odnHeight=768&amp;odnWidth=768" alt="Takis snack bag" /></div><div class="card-body"><h2>Takis</h2><div class="card-meta"><span>Hot chili · Lime rolled chips</span><span class="price">$2</span></div></div></article>
+      <article class="card"><div class="product-art"><img src="https://i5.walmartimages.com/seo/Lay-s-Classic-Potato-Chips-8-oz-Bag-pack-of-2_f1852517-59f2-467f-b176-3ea1f2b098ae.a06a239111071c1595ab75cf3bf2323f.jpeg" alt="Lay’s Classic potato chips bag" /></div><div class="card-body"><h2>Lay’s</h2><div class="card-meta"><span>Classic salted · Crispy</span><span class="price">$2</span></div></div></article>
+      <article class="card"><div class="product-art"><img src="https://i5.walmartimages.com/asr/101b1d40-8488-4b4b-a8a9-d4ab26a47266.27702690e0957fd69c8195e51b5eb485.jpeg" alt="Cheetos Crunchy cheese snack bag" /></div><div class="card-body"><h2>Cheetos</h2><div class="card-meta"><span>Cheesy · Crunchy</span><span class="price">$2</span></div></div></article>
+      <article class="card"><div class="product-art"><img src="https://i5.walmartimages.com/seo/Doritos-Nacho-Cheese-Flavored-Tortilla-Chips-9-25-oz-Bag_bd62bfc7-703f-44ff-abc3-8d8e22de792e.cb53831cd7b2920af980cbec76473da2.jpeg?odnBg=FFFFFF&amp;odnHeight=784&amp;odnWidth=580" alt="Doritos Nacho Cheese chips bag" /></div><div class="card-body"><h2>Doritos</h2><div class="card-meta"><span>Nacho cheese · Bold crunch</span><span class="price">$2</span></div></div></article>
+      <article class="card"><div class="product-art"><img src="https://shopanddispatch.com/cdn/shop/files/M_MsMilkChocolateSnack_ShareBag.jpg?v=1687697977&amp;width=1445" alt="M&amp;M’s chocolate candy bag" /></div><div class="card-body"><h2>M&amp;M’s</h2><div class="card-meta"><span>Milk chocolate · Candy shell</span><span class="price">$2</span></div></div></article>
+      <article class="card"><div class="product-art"><img src="https://media.kohlsimg.com/is/image/kohls/3210312?hei=600&amp;op_sharpen=1&amp;wid=600" alt="Skittles Original candy bag" /></div><div class="card-body"><h2>Skittles</h2><div class="card-meta"><span>Fruity · Colorful candy</span><span class="price">$2</span></div></div></article>
+      <article class="card"><div class="product-art"><img src="https://i5.walmartimages.com/seo/Welch-s-Fruit-Snacks-Mixed-Fruit-Bag-8-Oz_7520cd51-abfe-4e3d-8992-007f953fb25f.c69804c431569e272ca1934eb4f85703.jpeg?odnBg=FFFFFF&amp;odnHeight=768&amp;odnWidth=768" alt="Welch’s mixed fruit gummies bag" /></div><div class="card-body"><h2>Fruit Gummies</h2><div class="card-meta"><span>Mixed fruit · Chewy</span><span class="price">$2</span></div></div></article>
+      <article class="card"><div class="product-art"><img src="https://images.unsplash.com/photo-1585647347384-2593bc35786b?auto=format&amp;fit=crop&amp;w=700&amp;q=85" alt="Popcorn" /></div><div class="card-body"><h2>Popcorn</h2><div class="card-meta"><span>Buttery · Lightly salted</span><span class="price">$3</span></div></div></article>
+      <article class="card"><div class="product-art"><img src="https://kellogg-h.assetsadobe.com/is/image/content/dam/kelloggs/kna/us/digital-shelf/sunshine/00024100122349_C1N1.jpg" alt="Official Cheez-It Original snack crackers bag" /></div><div class="card-body"><h2>Cheez-It</h2><div class="card-meta"><span>Cheese · Baked snack</span><span class="price">$2</span></div></div></article>
+      <article class="card"><div class="product-art"><img src="https://www.foodello.nl/tuotekuvat/600x/7622201725051.png" alt="Oreo Original cookies package" /></div><div class="card-body"><h2>Oreo</h2><div class="card-meta"><span>Chocolate cookie · Creme filling</span><span class="price">$2</span></div></div></article>
+      <article class="card"><div class="product-art"><img src="https://www.partridges.co.uk/cdn/shop/files/PepperidgeFarmGoldfishCheddarCrackers187g.jpg?v=1741690710" alt="Goldfish Cheddar crackers bag" /></div><div class="card-body"><h2>Goldfish</h2><div class="card-meta"><span>Cheddar · Baked snack</span><span class="price">$2</span></div></div></article>
+    </section>
+    <aside class="pickup" aria-label="Pickup information"><div class="pickup-icon">⌖</div><div><div class="pickup-label">Pickup details</div><div class="pickup-text">Pick up at Room 214, 12:15–12:45 PM.</div></div></aside>
+  </main>
+  <div class="modal-backdrop" id="snackModal"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="snackTitle"><h2 id="snackTitle"></h2><p id="snackDescription"></p><div class="modal-actions"><button class="close-button" data-close>Close</button><button class="primary-button" id="addButton">Buy this snack</button></div></div></div>
+  <div class="modal-backdrop" id="orderModal"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="orderTitle"><h2 id="orderTitle">My order</h2><ul class="order-list" id="orderList"></ul><div class="order-total"><span>Total</span><span id="orderTotal">$0</span></div><div class="modal-actions"><button class="close-button" data-close>Keep browsing</button><button class="primary-button" id="checkoutButton">Checkout</button></div></div></div>
+  <div class="modal-backdrop" id="checkoutModal"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle"><h2 id="checkoutTitle">Checkout</h2><p id="checkoutMessage">Your snacks are ready to pay for. Pickup is at Room 214 from 12:15–12:45 PM.</p><div class="modal-actions"><button class="close-button" data-close>Back</button><button class="primary-button" id="payButton">Pay</button></div></div></div>
+  <div class="modal-backdrop" id="successModal"><div class="modal" role="dialog" aria-modal="true"><h2>Order received!</h2><p>We’re preparing your snack in Room 214. Pick it up between 12:15–12:45 PM.</p><div class="modal-actions"><button class="primary-button" data-close>Done</button></div></div></div>
+  <script>
+    const order = [];
+    let selectedCard = null;
+    const descriptions = {
+      'Takis':'Rolled tortilla chips with an intense hot chili pepper and lime flavor.', 'Lay’s':'Classic thin, crispy potato chips with a lightly salted finish.', 'Cheetos':'Crunchy cheese-flavored corn snacks with a bright, savory cheese taste.', 'Doritos':'Bold nacho-cheese tortilla chips with a crisp triangular shape.', 'M&M’s':'Milk chocolate candies covered in a colorful, crunchy candy shell.', 'Skittles':'Chewy, colorful candies with a bright mix of fruity flavors.', 'Fruit Gummies':'Soft, chewy fruit snacks made in fun shapes and mixed fruit flavors.', 'Popcorn':'Light, buttery popcorn with just the right amount of salt.', 'Cheez-It':'Crispy baked cheese crackers with a toasted, savory crunch.', 'Oreo':'Chocolate sandwich cookies with a smooth, sweet creme center.', 'Goldfish':'Small cheddar-flavored baked crackers shaped like smiling goldfish.'
+    };
+    const snackModal=document.getElementById('snackModal'), orderModal=document.getElementById('orderModal'), checkoutModal=document.getElementById('checkoutModal'), successModal=document.getElementById('successModal');
+    const money = value => '$' + value.toFixed(2).replace('.00','');
+    function updateOrderButton(){ document.getElementById('orderButton').textContent = `My order (${order.length})`; }
+    function openSnack(card){ selectedCard=card; const name=card.querySelector('h2').textContent; document.getElementById('snackTitle').textContent=name; document.getElementById('snackDescription').textContent=descriptions[name] || 'A delicious snack ready for pickup.'; snackModal.classList.add('open'); }
+    document.querySelectorAll('.card').forEach(card=>card.addEventListener('click',()=>openSnack(card)));
+    document.getElementById('addButton').addEventListener('click',()=>{ const name=selectedCard.querySelector('h2').textContent; const price=parseFloat(selectedCard.querySelector('.price').textContent.replace('$','')); order.push({name,price}); updateOrderButton(); snackModal.classList.remove('open'); });
+    document.getElementById('orderButton').addEventListener('click',()=>{ const list=document.getElementById('orderList'); list.innerHTML=order.length ? order.map(item=>`<li><span>${item.name}</span><strong>${money(item.price)}</strong></li>`).join('') : '<li>Your order is empty.</li>'; document.getElementById('orderTotal').textContent=money(order.reduce((sum,item)=>sum+item.price,0)); document.getElementById('payButton').style.display=order.length?'inline-block':'none'; orderModal.classList.add('open'); });
+    document.getElementById('checkoutButton').addEventListener('click',()=>{ if(order.length){ orderModal.classList.remove('open'); checkoutModal.classList.add('open'); } });
+    document.getElementById('payButton').addEventListener('click',()=>{ checkoutModal.classList.remove('open'); successModal.classList.add('open'); order.length=0; updateOrderButton(); });
+    document.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>button.closest('.modal-backdrop').classList.remove('open')));
+    document.querySelectorAll('.modal-backdrop').forEach(backdrop=>backdrop.addEventListener('click',event=>{ if(event.target===backdrop) backdrop.classList.remove('open'); }));
+  </script>
+</body>
+</html>
